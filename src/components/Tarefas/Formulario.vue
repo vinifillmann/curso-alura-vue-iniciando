@@ -22,8 +22,10 @@
 </template>
 
 <script lang="ts">
+import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { key } from '@/store';
-import { computed } from '@vue/reactivity';
+import { ADICIONA_TAREFA, NOTIFICAR } from '@/store/mutations';
+import { computed } from 'vue';
 import { defineComponent } from 'vue';
 import { useStore } from 'vuex';
 import Temporizador from './Temporizador.vue';
@@ -41,19 +43,35 @@ export default defineComponent({
     },
     methods: {
         finalizarTarefa(tempoDecorrido: number): void {
-            this.$emit("aoSalvarTarefa", {
+            const projeto = this.projetos.find(proj => proj.id == this.idProjeto)
+            if (!projeto) {
+                this.store.commit(NOTIFICAR, {
+                    titulo: "Erro",
+                    texto: "Nenhum projeto selecionado!!!",
+                    tipo: TipoNotificacoes.FALHA
+                })
+                return
+            }
+            this.store.commit(ADICIONA_TAREFA, {
                 duracaoEmSegundos: tempoDecorrido,
                 descricao: this.descricao,
                 projeto: this.projetos.find(proj => proj.id == this.idProjeto)
             })
+            if (!this.descricao) {
+                this.store.commit(NOTIFICAR, {
+                    titulo: "Cuidado",
+                    texto: "Lembre-se de colocar uma descrição!!!",
+                    tipo: TipoNotificacoes.ATENCAO
+                })
+            }
             this.descricao = ""
         }
     },
-    emits: ["aoSalvarTarefa"],
     setup() {
         const store = useStore(key)
         return {
-            projetos: computed(() => store.state.projetos)
+            projetos: computed(() => store.state.projetos),
+            store
         }
     }
 })
