@@ -2,8 +2,10 @@ import ProjetoInterface from "@/interfaces/ProjetoInterface";
 import { createStore, Store, useStore as vuexUseStore } from "vuex";
 import { InjectionKey } from "vue";
 import TarefaInterface from "@/interfaces/TarefaInterface";
-import { ADICIONA_PROJETO, ADICIONA_TAREFA, EDITA_PROJETO, EXCLUI_PROJETO, NOTIFICAR } from "./mutations";
+import { ADICIONA_PROJETO, ADICIONA_TAREFA, EDITA_PROJETO, EXCLUI_PROJETO, LISTA_PROJETOS, NOTIFICAR } from "./mutations";
 import NotificacoesInterface from "@/interfaces/NotificacoesInterface";
+import { ATUALIZA_PROJETO, CADASTRAR_PROJETO, GET_PROJETOS } from "./actions";
+import http from "@/http"
 
 interface Estado {
     projetos: ProjetoInterface[]
@@ -30,6 +32,9 @@ export const store = createStore<Estado>({
         [EXCLUI_PROJETO](state, id: string) {
             state.projetos = state.projetos.filter(proj => proj.id != id)
         },
+        [LISTA_PROJETOS](state, projetos: ProjetoInterface[]) {
+            state.projetos = projetos
+        },
         [NOTIFICAR](state, notificacao: NotificacoesInterface) {
             notificacao.id = new Date().getTime()
             state.notificacoes.push(notificacao)
@@ -40,6 +45,18 @@ export const store = createStore<Estado>({
         },
         [ADICIONA_TAREFA](state, tarefa: TarefaInterface) {
             state.tarefas.push(tarefa)
+        }
+    },
+    actions: {
+        [GET_PROJETOS]({ commit}) {
+            http.get("projetos")
+                .then(resposta => commit(LISTA_PROJETOS, resposta.data))
+        },
+        [CADASTRAR_PROJETO](context, projeto: ProjetoInterface) {
+            return http.post("projetos", projeto)
+        },
+        [ATUALIZA_PROJETO](context, projeto: ProjetoInterface) {
+            console.log()
         }
     }
 })

@@ -44,6 +44,7 @@
 import { computed, defineComponent } from 'vue';
 import { useStore } from "@/store"
 import { EXCLUI_PROJETO } from '@/store/mutations';
+import { GET_PROJETOS } from '@/store/actions';
 
 export default defineComponent({
     name: "Lista",
@@ -54,6 +55,7 @@ export default defineComponent({
     },
     setup() {
         const store = useStore()
+        store.dispatch(GET_PROJETOS)
         return {
             projetos: computed(() => store.state.projetos),
             store

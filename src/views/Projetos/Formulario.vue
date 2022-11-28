@@ -20,6 +20,7 @@ import { useStore } from "@/store"
 import { ADICIONA_PROJETO, EDITA_PROJETO } from '@/store/mutations';
 import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { NotificacaoMixin } from "@/mixins/Notificar"
+import { CADASTRAR_PROJETO } from '@/store/actions';
 // import useNotificador from "@/hooks/Notificador"
 
 export default defineComponent({
@@ -63,11 +64,13 @@ export default defineComponent({
             if (this.id) {
                 this.store.commit(EDITA_PROJETO, this.projetoLocalObject)
             } else {
-                this.store.commit(ADICIONA_PROJETO, this.projetoLocalObject)
+                this.store.dispatch(CADASTRAR_PROJETO, this.projetoLocalObject)
+                    .then(() => {
+                        this.nomeDoProjeto = ""
+                        this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi cadastrado com sucesso!")
+                        this.$router.push("/projetos")
+                    })
             }
-            this.nomeDoProjeto = ""
-            this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi cadastrado com sucesso!")
-            this.$router.push("/projetos")
         }
     },
     setup() {
