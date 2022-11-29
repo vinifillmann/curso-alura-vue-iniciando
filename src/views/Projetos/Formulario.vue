@@ -17,10 +17,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useStore } from "@/store"
-import { ADICIONA_PROJETO, EDITA_PROJETO } from '@/store/mutations';
 import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { NotificacaoMixin } from "@/mixins/Notificar"
-import { CADASTRAR_PROJETO } from '@/store/actions';
+import { PUT_PROJETO, POST_PROJETO } from '@/store/actions';
 // import useNotificador from "@/hooks/Notificador"
 
 export default defineComponent({
@@ -62,15 +61,17 @@ export default defineComponent({
     methods: {
         salvarProjeto(): void {
             if (this.id) {
-                this.store.commit(EDITA_PROJETO, this.projetoLocalObject)
+                this.store.dispatch(PUT_PROJETO, this.projetoLocalObject)
+                    .then(() => this.notificarSucesso())
             } else {
-                this.store.dispatch(CADASTRAR_PROJETO, this.projetoLocalObject)
-                    .then(() => {
-                        this.nomeDoProjeto = ""
-                        this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi cadastrado com sucesso!")
-                        this.$router.push("/projetos")
-                    })
+                this.store.dispatch(POST_PROJETO, this.projetoLocalObject)
+                    .then(() => this.notificarSucesso())
             }
+        },
+        notificarSucesso(): void {
+            this.nomeDoProjeto = ""
+            this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi salvo com sucesso!")
+            this.$router.push("/projetos")
         }
     },
     setup() {
