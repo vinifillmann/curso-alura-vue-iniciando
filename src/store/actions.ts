@@ -4,3 +4,4 @@ export const PUT_PROJETO = "PUT_PROJETO"
 export const DELETE_PROJETO = "DELETE_PROJETO"
 
 export const GET_TAREFAS = "GET_TAREFAS"
+export const POST_TAREFA = "POST_TAREFA"

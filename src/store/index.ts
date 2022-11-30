@@ -4,7 +4,7 @@ import { InjectionKey } from "vue";
 import TarefaInterface from "@/interfaces/TarefaInterface";
 import { ADICIONA_PROJETO, ADICIONA_TAREFA, EDITA_PROJETO, EXCLUI_PROJETO, LISTA_PROJETOS, LISTA_TAREFAS, NOTIFICAR } from "./mutations";
 import NotificacoesInterface from "@/interfaces/NotificacoesInterface";
-import { DELETE_PROJETO, GET_PROJETOS, GET_TAREFAS, POST_PROJETO, PUT_PROJETO } from "./actions";
+import { DELETE_PROJETO, GET_PROJETOS, GET_TAREFAS, POST_PROJETO, POST_TAREFA, PUT_PROJETO } from "./actions";
 import http from "@/http"
 
 interface Estado {
@@ -67,6 +67,10 @@ export const store = createStore<Estado>({
         [GET_TAREFAS]({ commit }) {
             http.get("tarefas")
                 .then(resposta => commit(LISTA_TAREFAS, resposta.data))
+        },
+        [POST_TAREFA]({ commit }, tarefa: TarefaInterface) {
+            http.post("tarefas", tarefa)
+                .then(response => commit(ADICIONA_TAREFA, response.data))
         }
     }
 })

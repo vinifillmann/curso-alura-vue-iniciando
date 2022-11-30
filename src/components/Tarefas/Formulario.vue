@@ -24,7 +24,8 @@
 <script lang="ts">
 import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { key } from '@/store';
-import { ADICIONA_TAREFA, NOTIFICAR } from '@/store/mutations';
+import { POST_TAREFA } from '@/store/actions';
+import { NOTIFICAR } from '@/store/mutations';
 import { computed } from 'vue';
 import { defineComponent } from 'vue';
 import { useStore } from 'vuex';
@@ -52,7 +53,7 @@ export default defineComponent({
                 })
                 return
             }
-            this.store.commit(ADICIONA_TAREFA, {
+            this.store.dispatch(POST_TAREFA, {
                 duracaoEmSegundos: tempoDecorrido,
                 descricao: this.descricao,
                 projeto: this.projetos.find(proj => proj.id == this.idProjeto)
