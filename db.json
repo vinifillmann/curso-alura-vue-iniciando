@@ -7,22 +7,13 @@
   ],
   "tarefas": [
     {
-      "id": 1,
-      "duracaoEmSegundos": 600,
-      "descricao": "Teste",
-      "projeto": {
-        "id": 1,
-        "nome": "Vue.js"
-      }
-    },
-    {
-      "duracaoEmSegundos": 4,
-      "descricao": "testestes",
+      "id": "2022-12-01T16:53:11.646Z",
+      "duracaoEmSegundos": 3,
+      "descricao": "teste",
       "projeto": {
         "id": "2022-11-28T17:37:22.805Z",
         "nome": "Python"
-      },
-      "id": 2
+      }
     }
   ]
 }

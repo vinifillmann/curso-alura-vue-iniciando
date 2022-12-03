@@ -1,9 +1,8 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
 import TarefasView from "../views/TarefasView.vue"
 import ProjetosView from "../views/ProjetosView.vue"
 import Formulario from "@/views/Projetos/Formulario.vue"
 import Lista from "@/views/Projetos/Lista.vue"
-
 
 const rotas: Array<RouteRecordRaw> = [
     {
@@ -36,7 +35,7 @@ const rotas: Array<RouteRecordRaw> = [
 ]
 
 const roteador = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes: rotas
 })
 

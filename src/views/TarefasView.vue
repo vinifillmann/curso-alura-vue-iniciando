@@ -1,11 +1,32 @@
 <template>
   <Formulario />
   <div class="lista">
-    <Tarefa v-for="(tarefa, index) in tarefas" :key="index" :tarefa="tarefa" />
+    <Tarefa v-for="(tarefa, index) in tarefas" :key="index" :tarefa="tarefa" @tarefaClickada="selecionarTarefa" />
 
     <Box v-if="listaVazia">
       Adicione Alguma Tarefa!!!
     </Box>
+    <div class="modal" :class="{ 'is-active': tarefaSelecionada }" v-if="tarefaSelecionada">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Editando Tarefa</p>
+          <button class="delete" aria-label="close" @click="fecharModal"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label for="descricaoDaTarefa" class="label">
+              Descrição
+            </label>
+            <input type="text" class="input" v-model="tarefaSelecionada.descricao" id="descricaoDaTarefa" maxlength="45" @keypress="(event) => { if (event.key == 'Enter') { editarTarefa() }}">
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button is-success" :disabled="!tarefaSelecionada.descricao" @click="editarTarefa">Salvar alterações</button>
+          <button class="button" @click="fecharModal">Cancelar</button>
+        </footer>
+      </div>
+    </div>
   </div>
 </template>
   
@@ -15,7 +36,8 @@ import Box from '@/components/Tarefas/Box.vue';
 import Formulario from "@/components/Tarefas/Formulario.vue";
 import Tarefa from '@/components/Tarefas/Tarefa.vue';
 import { useStore } from '@/store';
-import { GET_PROJETOS, GET_TAREFAS } from '@/store/actions';
+import { GET_PROJETOS, GET_TAREFAS, PUT_TAREFA } from '@/store/actions';
+import TarefaInterface from '@/interfaces/TarefaInterface';
 
 export default defineComponent({
   name: 'App',
@@ -23,6 +45,11 @@ export default defineComponent({
     Formulario,
     Tarefa,
     Box
+  },
+  data() {
+    return {
+      tarefaSelecionada: null as TarefaInterface | null
+    }
   },
   computed: {
     listaVazia(): boolean {
@@ -36,6 +63,19 @@ export default defineComponent({
     return {
       tarefas: computed(() => store.state.tarefas),
       store
+    }
+  },
+  methods: {
+    selecionarTarefa(tarefa: TarefaInterface): void {
+      this.tarefaSelecionada = tarefa
+    },
+    fecharModal(): void {
+      this.tarefaSelecionada = null
+      this.store.dispatch(GET_TAREFAS)
+    },
+    editarTarefa():void {
+      this.store.dispatch(PUT_TAREFA, this.tarefaSelecionada)
+        .then(() => this.fecharModal())
     }
   }
 });

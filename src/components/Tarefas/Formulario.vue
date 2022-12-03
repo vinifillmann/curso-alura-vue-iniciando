@@ -54,6 +54,7 @@ export default defineComponent({
                 return
             }
             this.store.dispatch(POST_TAREFA, {
+                id: new Date().toISOString(),
                 duracaoEmSegundos: tempoDecorrido,
                 descricao: this.descricao,
                 projeto: this.projetos.find(proj => proj.id == this.idProjeto)

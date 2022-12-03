@@ -1,6 +1,6 @@
 <template>
     <Box>
-        <div class="columns">
+        <div class="columns clicavel" @click="() => { $emit('tarefaClickada', tarefa) }">
             <div class="column is-5">
                 {{ tarefa.descricao || "Tarefa Sem Descrição" }}
             </div>
@@ -31,9 +31,13 @@ export default defineComponent({
             type: Object as PropType<TarefaInterface>,
             required: true
         }
-    }
+    },
+    emits: ["tarefaClickada"]
 })
 </script>
 
 <style scoped>
+.clicavel {
+    cursor: pointer;
+}
 </style>
