@@ -15,11 +15,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useStore } from "@/store"
 import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { NotificacaoMixin } from "@/mixins/Notificar"
 import { PUT_PROJETO, POST_PROJETO } from '@/store/actions';
+import ProjetoInterface from '@/interfaces/ProjetoInterface';
 // import useNotificador from "@/hooks/Notificador"
 
 export default defineComponent({
@@ -30,19 +31,19 @@ export default defineComponent({
         }
     },
     mixins: [NotificacaoMixin],
-    mounted() {
-        if (this.id) {
-            const projeto = this.store.state.projetos.find(proj => proj.id == this.id)
-            this.nomeDoProjeto = projeto?.nome || ""
-        }
-    },
-    data() {
-        return {
-            nomeDoProjeto: ""
-        }
-    },
+    // mounted() {
+    //     if (this.id) {
+    //         const projeto = this.store.state.projetos.projetos.find(proj => proj.id == this.id)
+    //         this.nomeDoProjeto = projeto?.nome || ""
+    //     }
+    // },
+    // data() {
+    //     return {
+    //         nomeDoProjeto: ""
+    //     }
+    // },
     computed: {
-        projetoLocalObject() {
+        projetoLocalObject(): ProjetoInterface {
             let projetoLocal
             if (this.id) {
                 projetoLocal = {
@@ -69,15 +70,21 @@ export default defineComponent({
             }
         },
         notificarSucesso(): void {
-            this.nomeDoProjeto = ""
+            this.nomeDoProjeto
             this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi salvo com sucesso!")
             this.$router.push("/projetos")
         }
     },
-    setup() {
+    setup(props) {
         const store = useStore()
+        const nomeDoProjeto = ref("")
+        if (props.id) {
+            const projeto = store.state.projetoState.projetos.find(proj => proj.id == props.id)
+            nomeDoProjeto.value = projeto?.nome || ""
+        }
         return {
-            store
+            store,
+            nomeDoProjeto
         }
     }
 })

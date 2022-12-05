@@ -1,40 +1,29 @@
-import ProjetoInterface from "@/interfaces/ProjetoInterface";
 import { createStore, Store, useStore as vuexUseStore } from "vuex";
 import { InjectionKey } from "vue";
 import TarefaInterface from "@/interfaces/TarefaInterface";
-import { ADICIONA_PROJETO, ADICIONA_TAREFA, EDITA_PROJETO, EDITA_TAREFA, EXCLUI_PROJETO, LISTA_PROJETOS, LISTA_TAREFAS, NOTIFICAR } from "./mutations";
+import { ADICIONA_TAREFA, EDITA_TAREFA, LISTA_TAREFAS, NOTIFICAR } from "./mutations";
 import NotificacoesInterface from "@/interfaces/NotificacoesInterface";
-import { DELETE_PROJETO, GET_PROJETOS, GET_TAREFAS, POST_PROJETO, POST_TAREFA, PUT_PROJETO, PUT_TAREFA } from "./actions";
+import { GET_TAREFAS, POST_TAREFA, PUT_TAREFA } from "./actions";
 import http from "@/http"
+import { ProjetoEstado, projetoState } from "./modulos/projetos";
 
-interface Estado {
-    projetos: ProjetoInterface[]
+export interface Estado {
     tarefas: TarefaInterface[]
     notificacoes: NotificacoesInterface[]
+    projetoState: ProjetoEstado
 }
 
 export const key: InjectionKey<Store<Estado>> = Symbol()
 
 export const store = createStore<Estado>({
     state: {
-        projetos: [],
         tarefas: [],
-        notificacoes: []
+        notificacoes: [],
+        projetoState: {
+            projetos: []
+        }
     },
     mutations: {
-        [ADICIONA_PROJETO](state, projeto: ProjetoInterface) {
-            state.projetos.push(projeto)
-        },
-        [EDITA_PROJETO](state, projeto: ProjetoInterface) {
-            const index = state.projetos.findIndex(proj => proj.id == projeto.id)
-            state.projetos[index] = projeto
-        },
-        [EXCLUI_PROJETO](state, id: string) {
-            state.projetos = state.projetos.filter(proj => proj.id != id)
-        },
-        [LISTA_PROJETOS](state, projetos: ProjetoInterface[]) {
-            state.projetos = projetos
-        },
         [NOTIFICAR](state, notificacao: NotificacoesInterface) {
             notificacao.id = new Date().getTime()
             state.notificacoes.push(notificacao)
@@ -55,19 +44,6 @@ export const store = createStore<Estado>({
         }
     },
     actions: {
-        [GET_PROJETOS]({ commit }) {
-            http.get("projetos")
-                .then(resposta => commit(LISTA_PROJETOS, resposta.data))
-        },
-        [POST_PROJETO](context, projeto: ProjetoInterface) {
-            return http.post("projetos", projeto)
-        },
-        [PUT_PROJETO](context, projeto: ProjetoInterface) {
-            return http.put(`projetos/${projeto.id}`, projeto)
-        },
-        [DELETE_PROJETO](context, projeto: ProjetoInterface) {
-            return http.delete(`projetos/${projeto.id}`)
-        },
         [GET_TAREFAS]({ commit }) {
             http.get("tarefas")
                 .then(resposta => commit(LISTA_TAREFAS, resposta.data))
@@ -80,6 +56,9 @@ export const store = createStore<Estado>({
             http.put(`tarefas/${tarefa.id}`, tarefa)
                 .then(response => commit(EDITA_TAREFA, response.data))
         }
+    },
+    modules: {
+        projetoState
     }
 })
 
