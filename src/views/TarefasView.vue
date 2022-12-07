@@ -17,27 +17,26 @@
       <span v-else>Nenhuma Tarefa Encontrada!!!</span>
     </Box>
 
-    <div class="modal" :class="{ 'is-active': tarefaSelecionada }" v-if="tarefaSelecionada">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Editando Tarefa</p>
-          <button class="delete" aria-label="close" @click="fecharModal"></button>
-        </header>
-        <section class="modal-card-body">
-          <div class="field">
-            <label for="descricaoDaTarefa" class="label">
-              Descrição
-            </label>
-            <input type="text" class="input" v-model="tarefaSelecionada.descricao" id="descricaoDaTarefa" maxlength="45" @keypress="(event) => { if (event.key == 'Enter') { editarTarefa() }}">
-          </div>
-        </section>
-        <footer class="modal-card-foot">
-          <button class="button is-success" :disabled="!tarefaSelecionada.descricao" @click="editarTarefa">Salvar alterações</button>
-          <button class="button" @click="fecharModal">Cancelar</button>
-        </footer>
-      </div>
-    </div>
+    <Modal :mostrar="tarefaSelecionada != null">
+      <template v-slot:header>
+        <p class="modal-card-title">Editando Tarefa</p>
+        <button class="delete" aria-label="close" @click="fecharModal"></button>
+      </template>
+      <template v-slot:body>
+        <div class="field">
+          <label for="descricaoDaTarefa" class="label">
+            Descrição
+          </label>
+          <input type="text" class="input" v-model="tarefaSelecionada.descricao" id="descricaoDaTarefa" maxlength="45"
+            @keypress="(event) => { if (event.key == 'Enter') { editarTarefa() } }">
+        </div>
+      </template>
+      <template v-slot:footer>
+        <button class="button is-success" :disabled="!tarefaSelecionada.descricao" @click="editarTarefa">Salvar
+          alterações</button>
+        <button class="button" @click="fecharModal">Cancelar</button>
+        </template>
+    </Modal>
   </div>
 </template>
   
@@ -46,6 +45,7 @@ import { computed, defineComponent, ref, watchEffect } from 'vue';
 import Box from '@/components/Tarefas/Box.vue';
 import Formulario from "@/components/Tarefas/Formulario.vue";
 import Tarefa from '@/components/Tarefas/Tarefa.vue';
+import Modal from '@/components/Tarefas/Modal.vue';
 import { useStore } from '@/store';
 import { GET_PROJETOS, GET_TAREFAS, PUT_TAREFA } from '@/store/actions';
 import TarefaInterface from '@/interfaces/TarefaInterface';
@@ -55,7 +55,8 @@ export default defineComponent({
   components: {
     Formulario,
     Tarefa,
-    Box
+    Box,
+    Modal
   },
   data() {
     return {
@@ -95,7 +96,7 @@ export default defineComponent({
       this.tarefaSelecionada = null
       this.store.dispatch(GET_TAREFAS)
     },
-    editarTarefa():void {
+    editarTarefa(): void {
       this.store.dispatch(PUT_TAREFA, this.tarefaSelecionada)
         .then(() => this.fecharModal())
     }
