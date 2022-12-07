@@ -18,10 +18,11 @@
 import { defineComponent, ref } from 'vue';
 import { useStore } from "@/store"
 import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
-import { NotificacaoMixin } from "@/mixins/Notificar"
+// import { NotificacaoMixin } from "@/mixins/Notificar"
 import { PUT_PROJETO, POST_PROJETO } from '@/store/actions';
 import ProjetoInterface from '@/interfaces/ProjetoInterface';
-// import useNotificador from "@/hooks/Notificador"
+import useNotificador from "@/hooks/Notificador"
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     name: "Formulario",
@@ -30,61 +31,55 @@ export default defineComponent({
             type: String
         }
     },
-    mixins: [NotificacaoMixin],
-    // mounted() {
-    //     if (this.id) {
-    //         const projeto = this.store.state.projetos.projetos.find(proj => proj.id == this.id)
-    //         this.nomeDoProjeto = projeto?.nome || ""
-    //     }
-    // },
-    // data() {
-    //     return {
-    //         nomeDoProjeto: ""
-    //     }
-    // },
-    computed: {
-        projetoLocalObject(): ProjetoInterface {
-            let projetoLocal
-            if (this.id) {
-                projetoLocal = {
-                    id: this.id,
-                    nome: this.nomeDoProjeto
-                }
-            } else {
-                projetoLocal = {
-                    id: new Date().toISOString(),
-                    nome: this.nomeDoProjeto
-                }
-            }
-            return projetoLocal
-        }
-    },
-    methods: {
-        salvarProjeto(): void {
-            if (this.id) {
-                this.store.dispatch(PUT_PROJETO, this.projetoLocalObject)
-                    .then(() => this.notificarSucesso())
-            } else {
-                this.store.dispatch(POST_PROJETO, this.projetoLocalObject)
-                    .then(() => this.notificarSucesso())
-            }
-        },
-        notificarSucesso(): void {
-            this.nomeDoProjeto
-            this.notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi salvo com sucesso!")
-            this.$router.push("/projetos")
-        }
-    },
     setup(props) {
+
+        const router = useRouter()
+
         const store = useStore()
         const nomeDoProjeto = ref("")
+        const { notificar } = useNotificador()
+
+
         if (props.id) {
             const projeto = store.state.projetoState.projetos.find(proj => proj.id == props.id)
             nomeDoProjeto.value = projeto?.nome || ""
         }
+
+        const getProjetoLocalObject = function (): ProjetoInterface {
+            let projetoLocal
+            if (props.id) {
+                projetoLocal = {
+                    id: props.id,
+                    nome: nomeDoProjeto.value
+                }
+            } else {
+                projetoLocal = {
+                    id: new Date().toISOString(),
+                    nome: nomeDoProjeto.value
+                }
+            }
+            return projetoLocal
+        }
+
+
+        const salvarProjeto = () => {
+            if (props.id) {
+                store.dispatch(PUT_PROJETO, getProjetoLocalObject())
+                    .then(() => notificarSucesso())
+            } else {
+                store.dispatch(POST_PROJETO, getProjetoLocalObject())
+                    .then(() => notificarSucesso())
+            }
+        }
+
+        const notificarSucesso = () =>{
+            notificar(TipoNotificacoes.SUCESSO, "Sucesso", "O Projeto foi salvo com sucesso!")
+            router.push("/projetos")
+        }
+
         return {
-            store,
-            nomeDoProjeto
+            nomeDoProjeto,
+            salvarProjeto
         }
     }
 })

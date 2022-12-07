@@ -26,7 +26,7 @@ import { TipoNotificacoes } from '@/interfaces/NotificacoesInterface';
 import { key } from '@/store';
 import { POST_TAREFA } from '@/store/actions';
 import { NOTIFICAR } from '@/store/mutations';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { defineComponent } from 'vue';
 import { useStore } from 'vuex';
 import Temporizador from './Temporizador.vue';
@@ -36,44 +36,45 @@ export default defineComponent({
     components: {
         Temporizador
     },
-    data() {
-        return {
-            descricao: "",
-            idProjeto: ""
-        }
-    },
-    methods: {
-        finalizarTarefa(tempoDecorrido: number): void {
-            const projeto = this.projetos.find(proj => proj.id == this.idProjeto)
+    setup() {
+        
+        const store = useStore(key)
+
+        const descricao = ref("")
+        const idProjeto = ref("")
+        const projetos = computed(() => store.state.projetoState.projetos)
+
+        const finalizarTarefa = (tempoDecorrido: number) => {
+            const projeto = projetos.value.find(proj => proj.id == idProjeto.value)
             if (!projeto) {
-                this.store.commit(NOTIFICAR, {
+                store.commit(NOTIFICAR, {
                     titulo: "Erro",
                     texto: "Nenhum projeto selecionado!!!",
                     tipo: TipoNotificacoes.FALHA
                 })
                 return
             }
-            this.store.dispatch(POST_TAREFA, {
+            store.dispatch(POST_TAREFA, {
                 id: new Date().toISOString(),
                 duracaoEmSegundos: tempoDecorrido,
-                descricao: this.descricao,
-                projeto: this.projetos.find(proj => proj.id == this.idProjeto)
+                descricao: descricao.value,
+                projeto: projetos.value.find(proj => proj.id == idProjeto.value)
             })
-            if (!this.descricao) {
-                this.store.commit(NOTIFICAR, {
+            if (!descricao.value) {
+                store.commit(NOTIFICAR, {
                     titulo: "Cuidado",
                     texto: "Lembre-se de colocar uma descrição!!!",
                     tipo: TipoNotificacoes.ATENCAO
                 })
             }
-            this.descricao = ""
+            descricao.value = ""
         }
-    },
-    setup() {
-        const store = useStore(key)
+
         return {
-            projetos: computed(() => store.state.projetoState.projetos),
-            store
+            projetos,
+            descricao,
+            idProjeto,
+            finalizarTarefa
         }
     }
 })

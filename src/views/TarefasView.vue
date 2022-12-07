@@ -1,11 +1,22 @@
 <template>
   <Formulario />
   <div class="lista">
+    <div class="field">
+      <p class="control has-icons-left">
+        <input type="text" class="input" placeholder="Digite para filtrar" v-model="filtro">
+        <span class="icon is-small is-left">
+          <i class="fas fa-search"></i>
+        </span>
+      </p>
+    </div>
+
     <Tarefa v-for="(tarefa, index) in tarefas" :key="index" :tarefa="tarefa" @tarefaClickada="selecionarTarefa" />
 
     <Box v-if="listaVazia">
-      Adicione Alguma Tarefa!!!
+      <span v-if="!filtro">Adicione Alguma Tarefa!!!</span>
+      <span v-else>Nenhuma Tarefa Encontrada!!!</span>
     </Box>
+
     <div class="modal" :class="{ 'is-active': tarefaSelecionada }" v-if="tarefaSelecionada">
       <div class="modal-background"></div>
       <div class="modal-card">
@@ -31,7 +42,7 @@
 </template>
   
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref, watchEffect } from 'vue';
 import Box from '@/components/Tarefas/Box.vue';
 import Formulario from "@/components/Tarefas/Formulario.vue";
 import Tarefa from '@/components/Tarefas/Tarefa.vue';
@@ -60,9 +71,20 @@ export default defineComponent({
     const store = useStore()
     store.dispatch(GET_TAREFAS)
     store.dispatch(GET_PROJETOS)
+
+    const filtro = ref("")
+
+    const tarefas = computed(() => store.state.tarefaState.tarefas.filter(t => !filtro.value || t.descricao.includes(filtro.value)))
+
+    watchEffect(() => {
+      store.dispatch(GET_TAREFAS)
+      filtro.value
+    })
+
     return {
-      tarefas: computed(() => store.state.tarefas),
-      store
+      tarefas,
+      store,
+      filtro
     }
   },
   methods: {
